@@ -15,4 +15,5 @@
 
 | # | 증상 | Phase | 근본 원인 |
 |---|---|---|---|
-| [001](./001-go-version-mismatch.md) | docker build 실패 (go 버전) | 1 | (원인 섹션 작성 후 한 줄 요약) |
+| [001](./001-go-version-mismatch.md) | docker build 실패 (go 버전) | 1 | go.mod 요구 버전 > 빌더 이미지 버전, GOTOOLCHAIN=local |
+| [002](./002-localhost-ipv6-listener.md) | localhost 404 / 127.0.0.1 200 | 1 | 이전 WSL 프로세스가 [::1]:8080 점유, localhost의 IPv6 해석 |
