@@ -15,4 +15,5 @@
 
 | # | 실험 | Phase | 핵심 수치 (before → after) |
 |---|---|---|---|
-| | | | |
+| [001](./001-image-size.md) | 이미지 크기 (빌드 플래그) | 1 | 27.5MB → 23.4MB (-15%) |
+| [002](./002-graceful-shutdown.md) | graceful shutdown in-flight 보존 | 1 | 유실률 100% (SIGKILL) → 0% (SIGTERM), 5회 반복 |
