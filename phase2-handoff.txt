@@ -1,0 +1,88 @@
+=====================================================
+Phase 2 진행용 컨텍스트 문서 (새 세션 시작 시 첨부)
+작성: 2026-08-18 / 작성자: Claude (Phase 1 세션)
+=====================================================
+
+[0. 세션 시작 시 필수 행동]
+- 폴더 연결: C:\Users\PC\Desktop\git-devops\devops-project (문서·인프라)
+             C:\Users\PC\Desktop\git-devops\api-server (Go 앱)
+- COLLABORATION.md를 먼저 읽고 그 규칙대로 진행할 것.
+  핵심: Claude는 구현자가 아니라 멘토·리뷰어. 브리핑→체크리스트→
+  사용자 설계→반박→사용자 구현→리뷰→ADR(사용자 초안)→파괴 검증→퀴즈.
+  힌트→방향→코드 순. 완성 코드 선제공 금지.
+  문서 분업: 내용은 사용자, 형식·링크·오탈자·목록표는 Claude.
+
+[1. 프로젝트 개요]
+- 목적: DevOps 학습, 포트폴리오 + 실무 준비
+- 사용자: DevOps 설계 입문, 주 6~10시간, 1인 운영 가정
+- 앱: api-server (Go, JWT 인증 API, in-memory 저장소 — DB 없음)
+- 레포: devops-project(문서), api-server(앱), 인프라 레포 신설 예정
+- 평가 기준: "왜 그렇게 만들었는지 설명할 수 있는가" (면접 기준)
+
+[2. Phase 1 완료 상태 (2026-08-14 ~ 08-16)]
+- Dockerfile: 멀티스테이지, golang:1.26.5-alpine → alpine:3.24,
+  non-root(uid 10001), -ldflags "-s -w" -trimpath, 이미지 23.4MB
+- graceful shutdown: 8초 timeout + Close() 폴백 (근거: docker stop 유예 10초 - 2초)
+- /healthz + 게이트된 /_test/slow (ENABLE_TEST_ENDPOINTS=true일 때만)
+- docker-compose.yml: wget healthcheck, stop_grace_period 10s
+- 기록물: ADR-0001(alpine, Phase 8 distroless 재검토 트리거),
+  troubleshooting 001(Go 버전)·002(localhost IPv6),
+  experiments 001(이미지 -15%)·002(유실률 100%→0%, 5회 재현),
+  runbook local-development.md(따라하기 검증 통과), retrospective phase-01
+- 회고 요점: 문서화 ≠ 체득 (퀴즈 1차 Q2·Q5 오답 → 재시험 통과)
+
+[3. Phase 2 확정 사항]
+- 오케스트레이션: EKS 확정 (멘토 지정, ECS 아님) — ADR-0002로 기록 예정
+- DB: 제외 (RDS 없음). roadmap Phase 2·10 수정 완료
+- 리전: ap-northeast-2 서울 (근거: 주 사용자 근접)
+- 예산: 월 $30 상한, 알림 50%/80%.
+  ** 게이트: 첫 terraform apply 전 Budget alert 설정 필수 (아직 미설정) **
+- 매 세션 종료 시 리소스 destroy 원칙
+- 용량 가정: 초당 10 요청
+- 노드: 3개, AZ 분산(HA)
+- Terraform 바이너리 로컬 설치됨 (버전 미확인 — 사용자에게 terraform version
+  출력 요청할 것. required_version 고정 논의 예정)
+
+[4. 멘토 피드백 요점 (상세: docs/notes/2026-08-17-phase2-mentor-notes.md)]
+- ADR은 더 짧아도 됨. 양보다 "왜, 어디에 포인트"의 설명력
+- 서브넷 타이트하게: 퍼블릭 /26~/28로 좁게, 프라이빗 넉넉히
+  (VPC CNI가 Pod마다 실 IP 소모 → 프라이빗이 IP를 많이 먹음)
+- 엔터프라이즈는 네트워크 계정과 EKS 계정 분리 (계정 경계 = 조직 경계)
+- IAM: User 금지, 전부 Role + AssumeRole, 최소 권한, admin 금지, IRSA
+- 노드 접근은 SSH 아닌 SSM 경유
+- 노드 오토스케일링: Karpenter vs Cluster Autoscaler (Phase 9에서 결정)
+- Makefile 퀵런치(make init/make run)는 보류된 백로그 (Phase 1 꼬리)
+
+[5. 진행 순서 (합의됨)]
+1) EKS/K8s 기초 학습 — EKS 브리핑은 이미 제공됨 (컨트롤 플레인 매니지드,
+   데이터 플레인=EC2 노드, VPC CNI의 IP 소모, IRSA, 오토스케일링 2층).
+   사용자가 EKS 공식 문서 + K8s 기본 오브젝트 학습 중
+2) 멘토 과제 1: 엔터프라이즈 AWS Organizations/OU 설계 문서
+   → docs/design/org-structure.md. AWS multi-account strategy 백서 기반.
+   각 OU/계정에 담당 조직 명시. 완성되면 Claude가 반박 리뷰
+3) 멘토 과제 2+3: 단순화 네트워크 구조 + 아키텍처 다이어그램
+   (VPC, 퍼블릭/프라이빗 서브넷, EKS, IAM Role — Terraform 작성 전 필수)
+4) 인프라 레포 생성 + ADR-0002(EKS)·0003(IaC 도구)·0004(state 저장/잠금)
+   → 이후 Terraform 구현 시작
+
+[6. Phase 2에서 열려 있는 결정 (체크리스트)]
+- IaC 도구 확정 근거 (Terraform vs OpenTofu vs CDK) — ADR
+- state 저장 위치 + 잠금 방식 (로컬 금지) — ADR
+- 인프라 레포 이름·구조, 디렉토리 구조 (modules vs 단순)
+- 네이밍·필수 태그 (Project/Environment/ManagedBy)
+- 로컬 인증 방식 (access key 금지 방향, IAM Identity Center 검토)
+- VPC CIDR·서브넷 계산 (과제 2에서)
+
+[7. 다음 Phase로 넘긴 항목 (retrospective phase-01 참조)]
+- Phase 3: go.mod↔Dockerfile 버전 동기화 CI 검사
+- Phase 4: ALB(Ingress) 연동 시 deregistration delay와 shutdown 8초 재검토
+- Phase 5: JWT_SECRET 기본값 제거·주입 전략
+- Phase 8: distroless 전환 + wget healthcheck를 쉘 비의존 probe로 교체
+- CI 자동 판정 필요 시: 부하 도구 k6 전환
+
+[8. 사용자 특성 (진행 방식 참고)]
+- 짧고 직설적인 피드백 선호, 표는 3개 이상 비교할 때만
+- 메모식으로 답하는 경향 → 문장화 요구 필요. 반박·검증 요구를 환영함
+- Claude의 설명도 재검증하는 습관 있음 (장려할 것)
+- 지치면 오타 증가 → 무리하지 않게 세션 분할 제안
+=====================================================

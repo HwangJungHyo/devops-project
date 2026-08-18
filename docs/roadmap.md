@@ -8,8 +8,8 @@
 ## Phase 2: Infrastructure as Code + AWS 인프라 구성
 - Terraform으로 기본 AWS 인프라 프로비저닝 (VPC, Subnet, SG)
 - ECR 레지스트리 생성
-- RDS/DB 인프라 구성
-- IAM 역할 및 정책 설정
+- EKS 클러스터 구성 (노드 3개, AZ 분산) — *2026-08-17 변경: DB 제외, EKS 확정*
+- IAM 역할 및 정책 설정 (User 금지, Role + AssumeRole, 최소 권한)
 
 ## Phase 3: CI/CD Pipeline
 - GitHub Actions 기반 CI 구성 (빌드, 테스트, 이미지 푸시)
@@ -17,8 +17,8 @@
 - 브랜치 전략 정의
 
 ## Phase 4: Container Orchestration + Load Balancer
-- ECS 또는 EKS 클러스터 구성
-- ALB 연동 및 헬스체크 설정
+- EKS에 워크로드 배포 (Deployment / Service) — *클러스터 자체는 Phase 2에서 구성*
+- ALB(Ingress) 연동 및 헬스체크 설정
 - 서비스 디스커버리
 
 ## Phase 5: Secret Management
@@ -44,7 +44,8 @@
 - 부하 테스트 및 튜닝
 
 ## Phase 10: Backup & Recovery
-- DB 스냅샷/백업 정책
+- 백업 대상 재정의 — *2026-08-17: DB 부재로 클러스터 구성·상태(terraform state,
+  매니페스트) 중심으로 조정 예정. DB 도입 시 스냅샷 정책 복원*
 - 복구 절차 검증 (DR 시나리오)
 
 ## Phase 11: Security

@@ -13,4 +13,4 @@ Phase 종료 시 작성한다. 회고 퀴즈(COLLABORATION.md 루프 8단계)를
 
 | Phase | 기간 | 회고 |
 |---|---|---|
-| | | |
+| 1. Containerization | 2026-08-14 ~ 08-16 | [phase-01.md](./phase-01.md) |

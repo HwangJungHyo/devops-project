@@ -15,7 +15,8 @@ Go 백엔드 API(`api-server`)를 컨테이너화부터 운영(모니터링·스
 
 | 항목 | Before | After | 근거 |
 |---|---|---|---|
-| | | | [experiments](./docs/experiments/) |
+| 배포 중 요청 유실률 (SIGKILL → graceful shutdown) | 100% | 0% (5회 반복 재현) | [experiments/002](./docs/experiments/002-graceful-shutdown.md) |
+| 런타임 이미지 크기 (빌드 플래그 적용) | 27.5MB | 23.4MB (-15%) | [experiments/001](./docs/experiments/001-image-size.md) |
 
 ## 진행 상태
 
@@ -23,8 +24,9 @@ Go 백엔드 API(`api-server`)를 컨테이너화부터 운영(모니터링·스
 
 | Phase | 주제 | 상태 |
 |---|---|---|
-| 1 | Containerization | 진행 예정 |
-| 2~12 | — | 대기 |
+| 1 | Containerization | **완료** ([회고](./docs/retrospective/phase-01.md)) |
+| 2 | IaC + AWS 인프라 | 다음 |
+| 3~12 | — | 대기 |
 
 ## 문서
 
