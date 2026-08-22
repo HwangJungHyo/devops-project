@@ -25,3 +25,6 @@
 | # | 제목 | 상태 |
 |---|---|---|
 | [0001](./0001-base-image.md) | 런타임 베이스 이미지 선정 (alpine, Phase 8 재검토) | Accepted |
+| [0002](./0002-EKS.md) | 컨테이너 오케스트레이션 — EKS | Accepted |
+| [0003](./0003-IaC-tool-selection.md) | IaC 도구 선정 — 선언형 DSL (Terraform) | Accepted |
+| [0004](./0004-terraform-state.md) | Terraform state 저장·잠금 — S3 backend + native lockfile | Accepted |
